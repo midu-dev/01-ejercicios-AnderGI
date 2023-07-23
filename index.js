@@ -44,17 +44,11 @@ async function readFileAndCount(word, callback) {
   const file = process.argv[2];
 
   if (!file) {
-    return callback(
-      new Error("No se ha especificado el path del archivo"),
-      wordCount
-    );
+    return callback(new Error("No se ha especificado el path del archivo"));
   }
 
   if (!word) {
-    return callback(
-      new Error("No se ha especificado la palabra a buscar"),
-      wordCount
-    );
+    return callback(new Error("No se ha especificado la palabra a buscar"));
   }
 
   //se le pasa como argumento el path
@@ -68,8 +62,7 @@ async function readFileAndCount(word, callback) {
       return callback(null, wordCount);
     }
 
-    console.log("Ha ocurrido un error");
-    process.exit(1);
+    return callback(new Error("Ha ocurrido un error"));
   }
 }
 
