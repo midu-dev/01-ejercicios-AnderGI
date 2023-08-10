@@ -1,11 +1,10 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const NO_DIRECTORY_OR_FILE_ERROR = "ENOENT";
+const exampleFile = "ejemplo.txt";
 
 // Ejercicio 2
 async function writeFile(filePath, data, callback) {
-  const exampleFile = "ejemplo.txt";
-
   try {
     const pathStats = await fs.stat(filePath);
 
@@ -18,22 +17,26 @@ async function writeFile(filePath, data, callback) {
     return callback(null);
   } catch (err) {
     if (err.code === NO_DIRECTORY_OR_FILE_ERROR) {
-      try {
-        await fs.mkdir(filePath, { recursive: true });
-
-        const createdPathStat = await fs.stat(filePath);
-
-        if (createdPathStat.isDirectory()) {
-          filePath = path.join(filePath, exampleFile);
-        }
-
-        await fs.writeFile(filePath, data, "utf8");
-
-        return callback(null);
-      } catch (err) {
-        console.log("Ha ocurrido un error");
-      }
+      createRecursivePath(filePath, data, callback);
     }
+  }
+}
+
+async function createRecursivePath(filePath, data, callback) {
+  try {
+    await fs.mkdir(filePath, { recursive: true });
+
+    const createdPathStat = await fs.stat(filePath);
+
+    if (createdPathStat.isDirectory()) {
+      filePath = path.join(filePath, exampleFile);
+    }
+
+    await fs.writeFile(filePath, data, "utf8");
+
+    return callback(null);
+  } catch (err) {
+    return callback(err);
   }
 }
 
@@ -55,7 +58,9 @@ async function readFileAndCount(word, callback) {
   //ver si existe o no
   try {
     const readFile = await fs.readFile(file, "utf-8");
-    wordCount = readFile.split(" ").filter((w) => w.includes(word)).length;
+    const fileWordsArray = readFile.split(" ");
+    const wordInFileWordsArray = fileWordsArray.filter((w) => w.includes(word));
+    wordCount = wordInFileWordsArray.length;
     return callback(null, wordCount);
   } catch (err) {
     if (err.code === NO_DIRECTORY_OR_FILE_ERROR) {
